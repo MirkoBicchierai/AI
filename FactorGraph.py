@@ -21,5 +21,29 @@ class FactorGraph:
 
     def sumProduct(self, root):
         root = self.nodes[root]
+        for e in root.connections:
+            self.collect(root, e)
+        for e in root.connections:
+            self.distribute(root, e)
+        for i in self.nodes:
+            self.computemarginal(i)
 
+    def collect(self, i, j):
+        for k in j.connections:
+            if k == i:
+                continue
+            self.collect(j, k)
+        self.sendmessage(j, i)
 
+    def distribute(self, i, j):
+        self.sendmessage(i, j)
+        for k in j.connections:
+            if k == i:
+                continue
+            self.distribute(j, k)
+
+    def computemarginal(self, i):
+        print("calcolo probabilità marginale su " + i)
+
+    def sendmessage(self, j, i):
+        print("messaggio inviato da " + j.name + " a " + i.name)

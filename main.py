@@ -4,7 +4,7 @@ from FactorGraph import FactorGraph
 def main():
     graph = FactorGraph()
 
-    graph.addNode("e", 2)
+    graph.addNode("a", 2)
     graph.addNode("b", 3)
 
     graph.addFactor("f1", [
