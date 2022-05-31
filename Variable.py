@@ -7,3 +7,4 @@ class Variable(Node):
         self.marginal = None
         self.size = size
         Node.__init__(self, name)
+        self.lastMessage = 1

@@ -11,7 +11,7 @@ def main():
         [0.8, 0.2],
         [0.2, 0.8],
         [0.5, 0.5]
-    ])
+    ], ["a", "b"])
 
     graph.addConnection("a", "f1")
     graph.addConnection("f1", "b")
