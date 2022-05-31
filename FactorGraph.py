@@ -25,10 +25,12 @@ class FactorGraph:
         self.root = self.nodes[root]
         for e in self.root.connections:
             self.collect(self.root, e)
+        self.root.lastmessage = self.root.recivedMessages[0]
         for e in self.root.connections:
             self.distribute(self.root, e)  # todo non passarlo
         for i in self.nodes:
-            self.computemarginal(i)
+            if isinstance(self.nodes[i], Variable):
+                self.computemarginal(self.nodes[i])
 
     def collect(self, i, j):
         for k in j.connections:
@@ -38,14 +40,19 @@ class FactorGraph:
         self.sendmessage(j, i)
 
     def distribute(self, i, j):
-        self.sendmessage(i, j)
+        self.sendmessage_ritorno(i, j)
         for k in j.connections:
             if k == i:
                 continue
             self.distribute(j, k)
 
     def computemarginal(self, i):
-        print("calcolo probabilità marginale su " + i)
+        if len(i.connections) == 1:
+            i.marginal = i.recivedMessages[0]
+        else:
+            i.marginal = i.recivedMessages[0] * i.recivedMessages[1]
+        i.marginal = i.marginal / np.sum(i.marginal)
+        print("calcolo probabilità marginale su " + i.name + str(i.marginal))
 
     def sendmessage(self, sender, reciver):
 
@@ -54,7 +61,7 @@ class FactorGraph:
                 msg = 1
                 reciver.lastMessage[sender.name] = msg
             else:
-                msg = sender.weigth
+                msg = sender.weight
                 reciver.lastMessage = msg
 
         elif self.root == sender:
@@ -62,25 +69,23 @@ class FactorGraph:
             msg = "SONO LA ROOT"
         else:
             if isinstance(sender, Variable):
-                # msg = np.sum(i.weight, axis=i.variables.index(j.name) - 1) * j.lastMessage
                 msg = sender.lastMessage
                 sender.lastMessage = 1
                 reciver.lastMessage[sender.name] = msg
             else:
-                # if len(j.lastMessage) == 1:
-                #    msg = j.lastMessage
-                # else:
-                #    msg = np.sum(np.array(j.lastMessage), axis=0)
-
                 marg_mex = []
+
                 for i in sender.lastMessage.keys():
                     index = -1
-                    for count, value in enumerate(sender.connections):
-                        if value.name == i:
+                    for count, value in enumerate(sender.variables):
+                        if value == i:
                             index = count
                             break
-                    marg_mex.append(np.sum(sender.weight, axis=(index-1)) * sender.lastMessage[i])
 
+                    test = np.sum(sender.weight, axis=(index))
+                    marg_mex.append(np.matmul(sender.lastMessage[i], np.sum(sender.weight, axis=(index))))
+
+                    print(marg_mex,test, i)
                 msg = np.sum(np.array(marg_mex), axis=0)
 
                 sender.lastMessage = {}
@@ -91,3 +96,37 @@ class FactorGraph:
         # todo mandare il messaggio
 
         print("messaggio inviato da " + sender.name + " a " + reciver.name + ' msg: ' + str(msg))
+
+    def sendmessage_ritorno(self, sender, reciver):
+
+        if self.root != sender and len(sender.connections) == 1:
+            sender.lastMessage = 1
+            msg = "SONO LA ROOT"
+        else:
+            if isinstance(sender, Variable):
+                msg = sender.lastMessage
+                sender.lastMessage = 1
+                reciver.lastMessage[sender.name] = msg
+            else:
+                marg_mex = []
+                for i in sender.lastMessage.keys():
+                    index = -1
+                    for count, value in enumerate(sender.variables):
+                        if value == i:
+                            index = count
+                            break
+                    test = np.sum(np.array(sender.weight), axis=(index - 1)).transpose()
+                    print(np.array(sender.lastMessage[i]).shape, test.shape)
+                    marg_mex.append(
+                        np.matmul(sender.lastMessage[i], np.sum(np.array(sender.weight), axis=(index - 1)).transpose()))
+
+                msg = np.sum(np.array(marg_mex), axis=0)
+
+                sender.lastMessage = {}
+                reciver.lastMessage = msg
+
+        reciver.recivedMessages.append(msg)
+
+        # todo mandare il messaggio
+
+        print("messaggio di ritorno inviato da " + sender.name + " a " + reciver.name + ' msg: ' + str(msg))
