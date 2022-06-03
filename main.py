@@ -2,6 +2,7 @@ from FactorGraph import FactorGraph
 
 
 def main():
+
     graph = FactorGraph()
 
     graph.add_node("x1", 2)

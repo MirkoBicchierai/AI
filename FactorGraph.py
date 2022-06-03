@@ -16,13 +16,13 @@ class FactorGraph:
         self.nodes[name] = Factor(name, weight, variable)
 
     def add_connection(self, node1, node2):
-        self.nodes[node1].addConnection(self.nodes[node2])
+        self.nodes[node1].add_connection(self.nodes[node2])
 
     def sum_product(self, root):
         self.root = self.nodes[root]
         for e in self.root.connections:
             self.collect(self.root, e)
-        self.root.lastMessage = self.root.recivedMessages[0]
+        self.root.lastMessage = self.root.received_message[0]
         for e in self.root.connections:
             self.distribute(self.root, e)
         for i in self.nodes:
@@ -45,9 +45,9 @@ class FactorGraph:
 
     def compute_marginal(self, i):
         if len(self.nodes[i].connections) == 1:
-            self.nodes[i].marginal = self.nodes[i].recivedMessages[0]
+            self.nodes[i].marginal = self.nodes[i].received_message[0]
         else:
-            self.nodes[i].marginal = self.nodes[i].recivedMessages[0] * self.nodes[i].recivedMessages[1]
+            self.nodes[i].marginal = self.nodes[i].received_message[0] * self.nodes[i].received_message[1]
         self.nodes[i].marginal = self.nodes[i].marginal / np.sum(self.nodes[i].marginal)
         print("Marginal probability on " + self.nodes[i].name + " : " + str(self.nodes[i].marginal))
 
@@ -83,7 +83,7 @@ class FactorGraph:
                 sender.lastMessage = {}
                 receiver.lastMessage = msg
 
-        receiver.recivedMessages.append(msg)
+        receiver.received_message.append(msg)
 
         print("Message (by leaf) send by " + sender.name + " to " + receiver.name + ' : ' + str(msg))
 
@@ -112,6 +112,6 @@ class FactorGraph:
                 sender.lastMessage = {}
                 receiver.lastMessage = msg
 
-        receiver.recivedMessages.append(msg)
+        receiver.received_message.append(msg)
 
         print("Message (by root) send by " + sender.name + " to " + receiver.name + ' : ' + str(msg))
