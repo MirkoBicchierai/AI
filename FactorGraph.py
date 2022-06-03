@@ -77,7 +77,10 @@ class FactorGraph:
                         if value == i:
                             index = count
                             break
-                    marg_mex.append(np.matmul(sender.lastMessage[i], np.sum(sender.weight, axis=index)))
+                    if isinstance(sender.lastMessage[i], int):
+                        marg_mex.append(np.sum(sender.weight, axis=index))
+                    else:
+                        marg_mex.append(np.matmul(sender.lastMessage[i], np.sum(sender.weight, axis=index)))
                 msg = np.sum(np.array(marg_mex), axis=0)
 
                 sender.lastMessage = {}

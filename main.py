@@ -1,3 +1,5 @@
+import numpy as np
+
 from FactorGraph import FactorGraph
 
 
@@ -19,7 +21,7 @@ def main():
     ], ["x4"])
 
     graph.add_factor("f12", [
-        [[0.8, 0.2], [0.2, 0.8], [0.5, 0.5]]
+        [0.8, 0.2], [0.2, 0.8], [0.5, 0.5]
     ], ["x2", "x1"])
 
     graph.add_factor("f342", [
@@ -39,5 +41,27 @@ def main():
     graph.sum_product("x1")
 
 
+def main_2():
+
+    graph = FactorGraph()
+
+    graph.add_node("x1", 2)
+    graph.add_node("x2", 3)
+
+
+
+
+    graph.add_factor("f12", [
+        [0.8, 0.2], [0.2, 0.8], [0.5, 0.5]
+    ], ["x2", "x1"])
+
+
+    graph.add_connection("x2", "f12")
+    graph.add_connection("x1", "f12")
+
+    graph.sum_product("x1")
+
 if __name__ == '__main__':
-    main()
+    main_2()
+
+
