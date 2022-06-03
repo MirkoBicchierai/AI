@@ -1,3 +1,5 @@
+import itertools
+
 from Factor import Factor
 from Variable import Variable
 import numpy as np
@@ -23,11 +25,14 @@ class FactorGraph:
         for e in self.root.connections:
             self.collect(self.root, e)
         self.root.lastMessage = self.root.received_message[0]
+        print("--------------------------------------------")
         for e in self.root.connections:
             self.distribute(self.root, e)
+        print("--------------------------------------------")
         for i in self.nodes:
             if isinstance(self.nodes[i], Variable):
                 self.compute_marginal(i)
+        print("--------------------------------------------")
 
     def collect(self, i, j):
         for k in j.connections:
@@ -43,34 +48,54 @@ class FactorGraph:
                 continue
             self.distribute(j, k)
 
+    def reset_lastmessage(self):
+        for item in self.nodes.items():
+            if isinstance(item, Variable):
+                item.lastMessage = 1
+            else:
+                item.lastMessage = {}
+
     def compute_marginal(self, i):
         if len(self.nodes[i].connections) == 1:
             self.nodes[i].marginal = self.nodes[i].received_message[0]
         else:
             self.nodes[i].marginal = self.nodes[i].received_message[0] * self.nodes[i].received_message[1]
         self.nodes[i].marginal = self.nodes[i].marginal / np.sum(self.nodes[i].marginal)
+
         print("Marginal probability on " + self.nodes[i].name + " : " + str(self.nodes[i].marginal))
 
     def send_message(self, sender, receiver):
-
         if len(sender.connections) == 1 and self.root != sender:
             if isinstance(sender, Variable):
                 msg = 1
                 receiver.lastMessage[sender.name] = msg
             else:
                 msg = sender.weight
-                receiver.lastMessage = msg
+                if not isinstance(receiver.lastMessage, int):
+                    receiver.lastMessage = [receiver.lastMessage, msg] #da fixare è un po marcio funziona solo con due factor
+                else:
+                    receiver.lastMessage = msg
 
         elif self.root == sender:
             sender.lastMessage = 1
         else:
             if isinstance(sender, Variable):
                 msg = sender.lastMessage
-                sender.lastMessage = 1
-                receiver.lastMessage[sender.name] = msg
+                if isinstance(msg, int) or isinstance(msg[0], float) or isinstance(msg[0], int):
+                    sender.lastMessage = 1
+                    receiver.lastMessage[sender.name] = msg
+                else:
+                    sender.lastMessage = 1
+
+                    giro = 0
+                    if giro == 1:
+                        msg = np.sum(msg, axis=0)
+                    else:
+                        msg = [msg[0][i]*msg[1][i] for i in range(len(msg[0]))]
+
+                    receiver.lastMessage[sender.name] = msg
             else:
                 marg_mex = []
-
                 for i in sender.lastMessage.keys():
                     index = -1
                     for count, value in enumerate(sender.variables):
@@ -80,11 +105,18 @@ class FactorGraph:
                     if isinstance(sender.lastMessage[i], int):
                         marg_mex.append(np.sum(sender.weight, axis=index))
                     else:
-                        marg_mex.append(np.matmul(sender.lastMessage[i], np.sum(sender.weight, axis=index)))
+                        if len(sender.connections) == 2:
+                            marg_mex.append(np.matmul(sender.lastMessage[i], sender.weight))
+                        else:
+                            marg_mex.append(np.matmul(sender.lastMessage[i], np.sum(sender.weight, axis=index)))
+
                 msg = np.sum(np.array(marg_mex), axis=0)
 
                 sender.lastMessage = {}
-                receiver.lastMessage = msg
+                if receiver.lastMessage != 1:
+                    receiver.lastMessage = [receiver.lastMessage, msg] #da fixare è un po marcio funziona solo con due factor
+                else:
+                    receiver.lastMessage = msg
 
         receiver.received_message.append(msg)
 
@@ -92,7 +124,7 @@ class FactorGraph:
 
     def send_message_root(self, sender, receiver):
 
-        if self.root != sender and len(sender.connections) == 1:
+        if self.root != sender and len(sender.connections) == 1:  # useless
             sender.lastMessage = 1
         else:
             if isinstance(sender, Variable):
@@ -107,12 +139,18 @@ class FactorGraph:
                         if value == i:
                             index = count
                             break
-                    marg_mex.append(
-                        np.matmul(sender.lastMessage[i], np.sum(np.array(sender.weight), axis=(index - 1)).transpose()))
+                    if len(sender.connections) == 2:
+                        # print(np.array(sender.lastMessage[i]).shape, np.array(sender.weight).transpose().shape)
+                        marg_mex.append(np.matmul(sender.lastMessage[i], np.array(sender.weight).transpose()))
+                    else:
+                        # print(np.array(sender.lastMessage[i]).shape, np.sum(np.array(sender.weight),
+                        # axis=index-1).transpose().shape)
+                        marg_mex.append(np.matmul(sender.lastMessage[i],
+                                                  np.sum(np.array(sender.weight), axis=index - 1).transpose()))
 
                 msg = np.sum(np.array(marg_mex), axis=0)
 
-                sender.lastMessage = {}
+                # sender.lastMessage = {}
                 receiver.lastMessage = msg
 
         receiver.received_message.append(msg)
