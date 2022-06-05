@@ -9,23 +9,23 @@ def main_3():
     graph.add_node("X3", 2)
 
     graph.add_factor("f1",
-        [0.5, 0.5]
-    , ["X1"])
+                     [0.1, 0.9]
+                     , ["X1"])
 
     graph.add_factor("f2",
-        [0.5, 0.5]
-    , ["X2"])
+                     [0.1, 0.9]
+                     , ["X2"])
 
     graph.add_factor("f3",
-        [0.8, 0.2]
-    , ["X3"])
+                     [0.9, 0.1]
+                     , ["X3"])
 
     graph.add_factor("f4", [
-        [0.8, 0.2], [0.2, 0.8]
+        [0.8, 0.2], [0.8, 0.2]
     ], ["X2", "X1"])
 
     graph.add_factor("f5", [
-        [0.8, 0.2], [0.2, 0.8]
+        [1, 0], [0, 1]
     ], ["X3", "X2"])
 
     graph.add_connection("X1", "f1")
@@ -37,6 +37,7 @@ def main_3():
     graph.add_connection("X3", "f3")
 
     graph.sum_product("X1")
+    graph.ExactMarginalization("X1")
 
 
 def main():
@@ -106,4 +107,4 @@ def main_2():
 
 
 if __name__ == '__main__':
-    main_3()
+    main()
