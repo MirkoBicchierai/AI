@@ -48,13 +48,6 @@ class FactorGraph:
                 continue
             self.distribute(j, k)
 
-    def reset_lastmessage(self):
-        for item in self.nodes.items():
-            if isinstance(item, Variable):
-                item.lastMessage = 1
-            else:
-                item.lastMessage = {}
-
     def compute_marginal(self, i):
         if len(self.nodes[i].connections) == 1:
             self.nodes[i].marginal = self.nodes[i].received_message[0]
@@ -65,6 +58,7 @@ class FactorGraph:
         print("Marginal probability on " + self.nodes[i].name + " : " + str(self.nodes[i].marginal))
 
     def send_message(self, sender, receiver):
+
         if len(sender.connections) == 1 and self.root != sender:
             if isinstance(sender, Variable):
                 msg = 1
@@ -87,11 +81,7 @@ class FactorGraph:
                 else:
                     sender.lastMessage = 1
 
-                    giro = 0
-                    if giro == 1:
-                        msg = np.sum(msg, axis=0)
-                    else:
-                        msg = [msg[0][i]*msg[1][i] for i in range(len(msg[0]))]
+                    msg = np.multiply(msg[0], msg[1]) #todo potrebbe essere una somma
 
                     receiver.lastMessage[sender.name] = msg
             else:
@@ -114,7 +104,7 @@ class FactorGraph:
 
                 sender.lastMessage = {}
                 if receiver.lastMessage != 1:
-                    receiver.lastMessage = [receiver.lastMessage, msg] #da fixare è un po marcio funziona solo con due factor
+                    receiver.lastMessage = [receiver.lastMessage, msg]
                 else:
                     receiver.lastMessage = msg
 
@@ -124,34 +114,29 @@ class FactorGraph:
 
     def send_message_root(self, sender, receiver):
 
-        if self.root != sender and len(sender.connections) == 1:  # useless
-            sender.lastMessage = 1
+        if isinstance(sender, Variable):
+            msg = sender.lastMessage
+            receiver.lastMessage[sender.name] = msg
         else:
-            if isinstance(sender, Variable):
-                msg = sender.lastMessage
-                sender.lastMessage = 1
-                receiver.lastMessage[sender.name] = msg
+            marg_mex = []
+            i = list(sender.lastMessage.keys())[0]
+            index = -1
+            for count, value in enumerate(sender.variables):
+                if value == receiver.name:
+                    index = count
+                    break
+            if len(sender.connections) == 2:
+                if np.array(sender.lastMessage[i]).shape[0] != np.array(sender.weight).shape[0]: # todo marciata
+                    marg_mex.append(np.matmul(sender .lastMessage[i], np.array(sender.weight).transpose()))
+                else:
+                    marg_mex.append(np.matmul(sender.lastMessage[i], np.array(sender.weight)))
+
             else:
-                marg_mex = []
-                for i in sender.lastMessage.keys():
-                    index = -1
-                    for count, value in enumerate(sender.variables):
-                        if value == i:
-                            index = count
-                            break
-                    if len(sender.connections) == 2:
-                        # print(np.array(sender.lastMessage[i]).shape, np.array(sender.weight).transpose().shape)
-                        marg_mex.append(np.matmul(sender.lastMessage[i], np.array(sender.weight).transpose()))
-                    else:
-                        # print(np.array(sender.lastMessage[i]).shape, np.sum(np.array(sender.weight),
-                        # axis=index-1).transpose().shape)
-                        marg_mex.append(np.matmul(sender.lastMessage[i],
-                                                  np.sum(np.array(sender.weight), axis=index - 1).transpose()))
+                marg_mex.append(np.matmul(sender.lastMessage[i],
+                                          np.sum(np.array(sender.weight), axis=index).transpose()))
 
-                msg = np.sum(np.array(marg_mex), axis=0)
-
-                # sender.lastMessage = {}
-                receiver.lastMessage = msg
+            msg = np.sum(np.array(marg_mex), axis=0)
+            receiver.lastMessage = msg
 
         receiver.received_message.append(msg)
 
