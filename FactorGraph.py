@@ -23,14 +23,14 @@ class FactorGraph:
         for e in self.root.connections:
             self.collect(self.root, e)
 
-        print("-----------------------------------------------")
+        print("--------------------------------------------")
         for e in self.root.connections:
             self.distribute(self.root, e)
-        print("-----------------------------------------------")
+        print("--------------------------------------------")
         for i in self.nodes:
             if isinstance(self.nodes[i], Variable):
                 self.compute_marginal(i)
-        print("-----------------------------------------------")
+        print("--------------------------------------------")
 
     def collect(self, i, j):
         for k in j.connections:
@@ -72,7 +72,9 @@ class FactorGraph:
                     receiver.lastMessage[sender.name] = msg
                 else:
                     sender.lastMessage = 1
+
                     msg = np.multiply(msg[0], msg[1])
+
                     receiver.lastMessage[sender.name] = msg
             else:
                 mex = []
@@ -86,7 +88,6 @@ class FactorGraph:
                         mex.append(np.sum(sender.weight, axis=index))
                     else:
                         if len(sender.connections) == 2:
-                            print(sender.lastMessage[i], sender.weight)
                             mex.append(np.matmul(sender.lastMessage[i], sender.weight))
                         else:
                             mex.append(np.matmul(sender.lastMessage[i], np.sum(sender.weight, axis=index)))
