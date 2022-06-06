@@ -31,6 +31,11 @@ class FactorGraph:
                 self.compute_marginal(i)
         print("--------------------------------------------")
 
+    def direct_marginal(self):
+        for i in self.nodes:
+            if isinstance(self.nodes[i], Variable):
+                print("Marginalization on " + i + ":")
+
     def collect(self, i, j):
         for k in j.connections:
             if k == i:

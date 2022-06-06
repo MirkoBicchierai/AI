@@ -38,6 +38,8 @@ def main_3():
 
     graph.sum_product()
 
+    graph.direct_marginal()
+
 
 def main():
     graph = FactorGraph()
@@ -73,20 +75,17 @@ def main():
     ], ["D", "C", "B"])
 
     graph.add_connection("C", "f3")
-
     graph.add_connection("D", "f45")
     graph.add_connection("E", "f45")
-
     graph.add_connection("D", "f4_")
-
     graph.add_connection("B", "f12")
     graph.add_connection("A", "f12")
-
     graph.add_connection("C", "f342")
     graph.add_connection("D", "f342")
     graph.add_connection("B", "f342")
 
     graph.sum_product()
+    graph.direct_marginal()
 
 
 def main_2():
@@ -103,7 +102,8 @@ def main_2():
     graph.add_connection("x1", "f12")
 
     graph.sum_product()
+    graph.direct_marginal()
 
 
 if __name__ == '__main__':
-    main_3()
+    main()
