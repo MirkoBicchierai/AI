@@ -22,7 +22,7 @@ class FactorGraph:
         self.root = self.nodes[root]
         for e in self.root.connections:
             self.collect(self.root, e)
-        self.root.lastMessage = self.root.received_message[0]
+
         print("-----------------------------------------------")
         for e in self.root.connections:
             self.distribute(self.root, e)
@@ -86,6 +86,7 @@ class FactorGraph:
                         mex.append(np.sum(sender.weight, axis=index))
                     else:
                         if len(sender.connections) == 2:
+                            print(sender.lastMessage[i], sender.weight)
                             mex.append(np.matmul(sender.lastMessage[i], sender.weight))
                         else:
                             mex.append(np.matmul(sender.lastMessage[i], np.sum(sender.weight, axis=index)))

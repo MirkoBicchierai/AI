@@ -37,7 +37,6 @@ def main_3():
     graph.add_connection("X3", "f3")
 
     graph.sum_product("X1")
-    graph.ExactMarginalization("X1")
 
 
 def main():

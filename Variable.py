@@ -20,5 +20,7 @@ class Variable(Node):
         z = np.sum(self.marginal)
         self.marginal = self.marginal / z
 
+        # print("message on " + self.name + " : " + str(self.received_message))
         print("Marginal probability on " + self.name + " : " + str(
-            np.around(self.marginal, decimals=4)) + " Z: " + str(z))
+            self.marginal) + " Z: " + str(z))
+        # np.around(self.marginal, decimals=4)
