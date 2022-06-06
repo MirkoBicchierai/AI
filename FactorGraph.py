@@ -18,11 +18,10 @@ class FactorGraph:
     def add_connection(self, node1, node2):
         self.nodes[node1].add_connection(self.nodes[node2])
 
-    def sum_product(self, root):
-        self.root = self.nodes[root]
+    def sum_product(self):
+        self.root = list(self.nodes.values())[0]
         for e in self.root.connections:
             self.collect(self.root, e)
-
         print("--------------------------------------------")
         for e in self.root.connections:
             self.distribute(self.root, e)

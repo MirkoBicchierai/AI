@@ -36,7 +36,7 @@ def main_3():
     graph.add_connection("X3", "f5")
     graph.add_connection("X3", "f3")
 
-    graph.sum_product("X1")
+    graph.sum_product()
 
 
 def main():
@@ -86,7 +86,7 @@ def main():
     graph.add_connection("D", "f342")
     graph.add_connection("B", "f342")
 
-    graph.sum_product("A")
+    graph.sum_product()
 
 
 def main_2():
@@ -102,8 +102,8 @@ def main_2():
     graph.add_connection("x2", "f12")
     graph.add_connection("x1", "f12")
 
-    graph.sum_product("x2")
+    graph.sum_product()
 
 
 if __name__ == '__main__':
-    main()
+    main_3()
