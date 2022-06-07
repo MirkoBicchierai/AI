@@ -44,7 +44,7 @@ class FactorGraph:
         self.send_message(j, i)
 
     def distribute(self, i, j):
-        self.send_message_root_2(i, j)
+        self.send_message_root(i, j)
         for k in j.connections:
             if k == i:
                 continue
@@ -106,35 +106,6 @@ class FactorGraph:
         print("Message (by leaf) send by " + sender.name + " to " + receiver.name + ' : ' + str(msg))
 
     def send_message_root(self, sender, receiver):
-
-        if isinstance(sender, Variable):
-            msg = sender.lastMessage
-            receiver.lastMessage[sender.name] = msg
-        else:
-            mex = []
-            i = list(sender.lastMessage.keys())[0]
-            index = -1
-            for count, value in enumerate(sender.variables):
-                if value == receiver.name:
-                    index = count
-                    break
-            if len(sender.connections) == 2:
-                if np.array(sender.lastMessage[i]).shape[0] != np.array(sender.weight).shape[0]:
-                    mex.append(np.matmul(sender.lastMessage[i], np.array(sender.weight).transpose()))
-                else:
-                    mex.append(np.matmul(sender.lastMessage[i], np.array(sender.weight)))
-
-            else:
-                mex.append(np.matmul(sender.lastMessage[i],
-                                     np.sum(np.array(sender.weight), axis=index).transpose()))
-
-            msg = np.sum(np.array(mex), axis=0)
-            receiver.lastMessage = msg
-
-        receiver.received_message.append(msg)
-        print("Message (by root) send by " + sender.name + " to " + receiver.name + ' : ' + str(msg))
-
-    def send_message_root_2(self, sender, receiver):
 
         if self.root == sender:
             msg = 1

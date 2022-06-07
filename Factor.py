@@ -9,4 +9,3 @@ class Factor(Node):
         self.org = weight
         self.variables = variables
         self.lastMessage = {}
-

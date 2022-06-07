@@ -12,15 +12,13 @@ class Variable(Node):
 
     def marginal_exe(self):
 
-        if len(self.connections) == 1:
-            self.marginal = self.received_message[0]
-        else:
-            self.marginal = self.received_message[0] * self.received_message[1]
+        self.marginal = np.ones(self.size)
+        for array in self.received_message:
+            for i in range(len(array)):
+                self.marginal[i] = self.marginal[i] * array[i]
 
         z = np.sum(self.marginal)
         self.marginal = self.marginal / z
 
-        # print("message on " + self.name + " : " + str(self.received_message))
         print("Marginal probability on " + self.name + " : " + str(
-            self.marginal) + " Z: " + str(z))
-        # np.around(self.marginal, decimals=4)
+            self.marginal) + " Z: " + str(z) + " Received message: " + str(self.received_message))
