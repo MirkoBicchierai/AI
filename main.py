@@ -37,8 +37,7 @@ def main_3():
     graph.add_connection("X3", "f3")
 
     graph.sum_product()
-
-    graph.direct_marginal()
+    graph.direct_marginal(["X2"], ["X3"])
 
 
 def main():
@@ -54,44 +53,38 @@ def main():
         0.2, 0.8
     ], ["C"])
 
-    graph.add_factor("f4_", [
+    graph.add_factor("f5", [
         0.1, 0.2, 0.2, 0.5
     ], ["D"])
 
-    graph.add_factor("f45", [
+    graph.add_factor("f4", [
         [0.2, 0.8], [0.3, 0.7], [0.1, 0.9], [0.35, 0.65]
     ], ["D", "E"])
 
-    graph.add_factor("f12", [
+    graph.add_factor("f1", [
         [0.8, 0.2], [0.2, 0.8], [0.5, 0.5]
     ], ["B", "A"])
 
-    graph.add_factor("f342", [
+    graph.add_factor("f2", [
         [
-            [0.3, 0.5, 0.2],
-            [0.1, 0.1, 0.8],
-            [0.2, 0.6, 0.2],
-            [0.1, 0.7, 0.2]
+            [0.3, 0.5, 0.2], [0.1, 0.1, 0.8], [0.2, 0.6, 0.2], [0.1, 0.7, 0.2]
         ], [
-            [0.9, 0.05, 0.05],
-            [0.2, 0.7, 0.1],
-            [0.4, 0.4, 0.2],
-            [0.1, 0.1, 0.8]
+            [0.9, 0.05, 0.05], [0.2, 0.7, 0.1], [0.4, 0.4, 0.2], [0.1, 0.1, 0.8]
         ]
     ], ["D", "C", "B"])
 
     graph.add_connection("C", "f3")
-    graph.add_connection("D", "f45")
-    graph.add_connection("E", "f45")
-    graph.add_connection("D", "f4_")
-    graph.add_connection("B", "f12")
-    graph.add_connection("A", "f12")
-    graph.add_connection("C", "f342")
-    graph.add_connection("D", "f342")
-    graph.add_connection("B", "f342")
+    graph.add_connection("D", "f4")
+    graph.add_connection("E", "f4")
+    graph.add_connection("D", "f5")
+    graph.add_connection("B", "f1")
+    graph.add_connection("A", "f1")
+    graph.add_connection("C", "f2")
+    graph.add_connection("D", "f2")
+    graph.add_connection("B", "f2")
 
     graph.sum_product()
-    # graph.direct_marginal()
+    graph.direct_marginal(["A"], ["B"])
 
 
 def main_2():
@@ -108,7 +101,7 @@ def main_2():
     graph.add_connection("x1", "f12")
 
     graph.sum_product()
-    graph.direct_marginal()
+    graph.direct_marginal(["x1"], [""])
 
 
 if __name__ == '__main__':
