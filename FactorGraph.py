@@ -30,7 +30,7 @@ class FactorGraph:
                     if isinstance(j, Factor):
                         if j not in prod:
                             prod.append(j)
-
+        test = True
         tmp = []
         final = []
         for i in prod:
