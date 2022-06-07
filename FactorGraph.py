@@ -44,7 +44,7 @@ class FactorGraph:
         self.send_message(j, i)
 
     def distribute(self, i, j):
-        self.send_message_root(i, j)
+        self.send_message_root_2(i, j)
         for k in j.connections:
             if k == i:
                 continue
@@ -76,9 +76,7 @@ class FactorGraph:
                     receiver.lastMessage[sender.name] = msg
                 else:
                     sender.lastMessage = 1
-
                     msg = np.multiply(msg[0], msg[1])
-
                     receiver.lastMessage[sender.name] = msg
             else:
                 mex = []
@@ -105,7 +103,6 @@ class FactorGraph:
                     receiver.lastMessage = msg
 
         receiver.received_message.append(msg)
-
         print("Message (by leaf) send by " + sender.name + " to " + receiver.name + ' : ' + str(msg))
 
     def send_message_root(self, sender, receiver):
@@ -135,5 +132,41 @@ class FactorGraph:
             receiver.lastMessage = msg
 
         receiver.received_message.append(msg)
+        print("Message (by root) send by " + sender.name + " to " + receiver.name + ' : ' + str(msg))
 
+    def send_message_root_2(self, sender, receiver):
+
+        if self.root == sender:
+            msg = 1
+            receiver.lastMessage[sender.name] = msg
+        else:
+
+            if isinstance(sender, Variable):
+                msg = sender.lastMessage
+                receiver.lastMessage[sender.name] = msg
+            else:
+                mex = []
+                i = list(sender.lastMessage.keys())[0]
+                index = -1
+                for count, value in enumerate(sender.variables):
+                    if value == receiver.name:
+                        index = count
+                        break
+
+                if isinstance(sender.lastMessage[i], int):
+                    mex.append(np.sum(sender.weight, axis=sender.variables.index(list(sender.lastMessage.keys())[0])))
+                else:
+                    if len(sender.connections) == 2:
+                        if np.array(sender.lastMessage[i]).shape[0] != np.array(sender.weight).shape[0]:
+                            mex.append(np.matmul(sender.lastMessage[i], np.array(sender.weight).transpose()))
+                        else:
+                            mex.append(np.matmul(sender.lastMessage[i], np.array(sender.weight)))
+                    else:
+                        mex.append(np.matmul(sender.lastMessage[i],
+                                             np.sum(np.array(sender.weight), axis=index).transpose()))
+
+                msg = np.sum(np.array(mex), axis=0)
+                receiver.lastMessage = msg
+
+        receiver.received_message.append(msg)
         print("Message (by root) send by " + sender.name + " to " + receiver.name + ' : ' + str(msg))
