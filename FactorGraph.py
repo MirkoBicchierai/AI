@@ -18,68 +18,6 @@ class FactorGraph:
     def add_connection(self, node1, node2):
         self.nodes[node1].add_connection(self.nodes[node2])
 
-    def direct_marginal(self, node, condition):
-        # find the correct order to multiply table
-        prod = []
-        marg_var = []
-        for i in self.nodes:
-            if isinstance(self.nodes[i], Variable):
-                if self.nodes[i].name not in node and self.nodes[i].name not in condition:
-                    marg_var.append(self.nodes[i].name)
-                for j in self.nodes[i].connections:
-                    if isinstance(j, Factor):
-                        if j not in prod:
-                            prod.append(j)
-        test = True
-        tmp = []
-        final = []
-        for i in prod:
-            if i not in tmp:
-                intersect = [i]
-                tmp.append(i)
-                for j in prod:
-                    check = False
-                    if all(x in i.variables for x in j.variables):
-                        check = True
-                    if check and j not in tmp:
-                        intersect.append(j)
-                for k in intersect:
-                    tmp.append(k)
-                final.append(intersect)
-
-        for group in final:
-            test = ""
-            for fact in group:
-                test = test + fact.name + " "
-            print("Group: " + test)
-        print("-----------------------------------")
-
-        for var in marg_var:
-            for group in final:
-                test = ""
-                for fact in group:
-                    test = test + fact.name + " "
-                tmp = []
-                for fact in group:
-                    tmp.append(fact.weight)
-                    check = True
-                    if var in fact.variables:
-                        check = False
-                        if len(fact.variables) != 1:
-                            tmp[len(tmp) - 1] = np.sum(tmp[len(tmp) - 1], axis=fact.variables.index(var))
-                    if check:
-                        tmp[len(tmp) - 1] = 1
-                count = 0
-                app = None
-                for k in tmp:
-                    if count == 0:
-                        app = k
-                    else:
-                        if isinstance(k, list):
-                            app = np.matmul(np.array(app).transpose(), k)
-                    count = count + 1
-
-
     def sum_product(self):
         self.root = list(self.nodes.values())[0]
         for e in self.root.connections:

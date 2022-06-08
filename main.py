@@ -37,7 +37,6 @@ def main_3():
     graph.add_connection("X3", "f3")
 
     graph.sum_product()
-    graph.direct_marginal(["X2"], ["X3"])
 
 
 def main():
@@ -84,7 +83,6 @@ def main():
     graph.add_connection("B", "f2")
 
     graph.sum_product()
-    graph.direct_marginal(["A"], ["B"])
 
 
 def main_2():
@@ -101,7 +99,6 @@ def main_2():
     graph.add_connection("x1", "f12")
 
     graph.sum_product()
-    graph.direct_marginal(["x1"], [""])
 
 
 if __name__ == '__main__':
